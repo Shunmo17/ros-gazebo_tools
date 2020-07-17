@@ -38,9 +38,9 @@ class Tf_publisher():
         qy = self.model_pose.orientation.y
         qz = self.model_pose.orientation.z
         qw = self.model_pose.orientation.w
-        #rospy.loginfo("{} : ({}, {})".format(self.model_name, x, y))
-        self.tf_broadcaster.sendTransform((x, y, z), (qx, qy, qz,  qw), rospy.Time.now(), self.base_frame_id, self.global_frame_id)
-        #rospy.loginfo("{} tf publish".format(self.model_name))
+        # rospy.loginfo("{} : ({}, {})".format(self.model_name, x, y))
+        self.tf_broadcaster.sendTransform((x, y, z), (qx, qy, qz, qw), rospy.Time.now(), self.base_frame_id, self.global_frame_id)
+        # rospy.loginfo("{} tf publish".format(self.model_name))
 
 def main():
     rospy.init_node("gazebo_tf_publisher")
@@ -48,11 +48,17 @@ def main():
     rate = rospy.Rate(50)
 
     while tf_pub.model_pose is None:
-        rate.sleep()
+        try:
+            rate.sleep()
+        except rospy.ROSInterruptException:
+            pass
 
     while not rospy.is_shutdown():
-        tf_pub.boroadcast_tf()
-        rate.sleep()
+        try:
+            tf_pub.boroadcast_tf()
+            rate.sleep()
+        except rospy.ROSInterruptException:
+            pass
 
 
 if __name__ == '__main__':
