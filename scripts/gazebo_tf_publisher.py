@@ -24,14 +24,15 @@ class Tf_publisher():
         self.tf_broadcaster = tf.TransformBroadcaster()
 
     def cb_gazebo_model(self, _gazebo_model):
+        cb_time = rospy.Time.now()
         if self.first_sub_:
             self.model_index_ = _gazebo_model.name.index(self.model_name_)
             self.first_sub_ = False
         else:
             model_pose_ = _gazebo_model.pose[self.model_index_]
-            self.boroadcast_tf(model_pose_)
+            self.boroadcast_tf(model_pose_, cb_time)
 
-    def boroadcast_tf(self, _model_pose):
+    def boroadcast_tf(self, _model_pose, _time):
         x = _model_pose.position.x
         y = _model_pose.position.y
         z = _model_pose.position.z
@@ -40,12 +41,12 @@ class Tf_publisher():
         qz = _model_pose.orientation.z
         qw = _model_pose.orientation.w
         # rospy.loginfo("{} : ({}, {})".format(self.model_name_, x, y))
-        self.tf_broadcaster.sendTransform((x, y, z), (qx, qy, qz, qw), rospy.Time.now(), self.base_frame_id_, self.global_frame_id_)
+        self.tf_broadcaster.sendTransform((x, y, z), (qx, qy, qz, qw), _time, self.base_frame_id_, self.global_frame_id_)
         # rospy.loginfo("{} tf publish".format(self.model_name_))
 
 def main():
     rospy.init_node("gazebo_tf_publisher")
-    
+
     tf_pub = Tf_publisher()
 
     rospy.spin()
