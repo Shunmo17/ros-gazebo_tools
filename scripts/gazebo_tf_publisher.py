@@ -19,7 +19,7 @@ class Tf_publisher():
         self.gazebo_model_topic_name = "/gazebo/model_states"
 
         # subscriber
-        self.gazebo_model_sub = rospy.Subscriber(self.gazebo_model_topic_name, ModelStates, self.gazebo_model_callback)
+        self.gazebo_model_sub = rospy.Subscriber(self.gazebo_model_topic_name, ModelStates, self.gazebo_model_callback, queue_size=1)
 
         # tf broadcaster
         self.tf_broadcaster = tf.TransformBroadcaster()
