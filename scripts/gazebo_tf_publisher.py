@@ -11,7 +11,7 @@ class Tf_publisher():
         self.model_name_ = rospy.get_param("~model_name")
         self.base_frame_id_ = rospy.get_param("~base_frame_id")
         self.global_frame_id_ = rospy.get_param("~global_frame_id")
-        self.tf_time_delay_ = rospy,get_param("~tf_time_delay")
+        self.tf_time_delay_ = rospy.get_param("~tf_time_delay")
         self.model_index_ = None
         self.first_sub_ = True
 
