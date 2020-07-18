@@ -26,7 +26,7 @@ class Tf_publisher():
 
     def cb_gazebo_model(self, _gazebo_model):
         cb_time = rospy.Time.now()
-        tf_time = cb_time - rospy.Duration.from_sec(tf_time_delay_)
+        tf_time = cb_time - rospy.Duration.from_sec(self.tf_time_delay_)
         if self.first_sub_:
             self.model_index_ = _gazebo_model.name.index(self.model_name_)
             self.first_sub_ = False
