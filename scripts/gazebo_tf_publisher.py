@@ -11,6 +11,7 @@ class Tf_publisher():
         self.model_name_ = rospy.get_param("~model_name")
         self.base_frame_id_ = rospy.get_param("~base_frame_id")
         self.global_frame_id_ = rospy.get_param("~global_frame_id")
+        self.tf_time_delay_ = rospy,get_param("~tf_time_delay")
         self.model_index_ = None
         self.first_sub_ = True
 
@@ -25,12 +26,13 @@ class Tf_publisher():
 
     def cb_gazebo_model(self, _gazebo_model):
         cb_time = rospy.Time.now()
+        tf_time = cb_time - rospy.Duration.from_sec(tf_time_delay_)
         if self.first_sub_:
             self.model_index_ = _gazebo_model.name.index(self.model_name_)
             self.first_sub_ = False
         else:
             model_pose_ = _gazebo_model.pose[self.model_index_]
-            self.boroadcast_tf(model_pose_, cb_time)
+            self.boroadcast_tf(model_pose_, tf_time)
 
     def boroadcast_tf(self, _model_pose, _time):
         x = _model_pose.position.x
