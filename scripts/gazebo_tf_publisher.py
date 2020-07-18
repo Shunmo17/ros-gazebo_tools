@@ -8,58 +8,47 @@ from gazebo_msgs.msg import ModelStates
 
 class Tf_publisher():
     def __init__(self):
-        self.model_name = rospy.get_param("~model_name")
-        self.base_frame_id = rospy.get_param("~base_frame_id")
-        self.global_frame_id = rospy.get_param("~global_frame_id")
-        self.model_index = None
-        self.first_sub = True
-        self.model_pose = None
+        self.model_name_ = rospy.get_param("~model_name")
+        self.base_frame_id_ = rospy.get_param("~base_frame_id")
+        self.global_frame_id_ = rospy.get_param("~global_frame_id")
+        self.model_index_ = None
+        self.first_sub_ = True
 
         # topic name
-        self.gazebo_model_topic_name = "/gazebo/model_states"
+        gazebo_model_topic_name = "/gazebo/model_states"
 
         # subscriber
-        self.gazebo_model_sub = rospy.Subscriber(self.gazebo_model_topic_name, ModelStates, self.gazebo_model_callback, queue_size=1)
+        self.gazebo_model_sub = rospy.Subscriber(gazebo_model_topic_name, ModelStates, self.cb_gazebo_model, queue_size=1)
 
         # tf broadcaster
         self.tf_broadcaster = tf.TransformBroadcaster()
 
-    def gazebo_model_callback(self, _gazebo_model):
-        if self.first_sub == True:
-            self.model_index = _gazebo_model.name.index(self.model_name)
-            self.first_sub = False
-        self.model_pose = _gazebo_model.pose[self.model_index]
+    def cb_gazebo_model(self, _gazebo_model):
+        if self.first_sub_:
+            self.model_index_ = _gazebo_model.name.index(self.model_name_)
+            self.first_sub_ = False
+        else:
+            model_pose_ = _gazebo_model.pose[self.model_index_]
+            self.boroadcast_tf(model_pose_)
 
-    def boroadcast_tf(self):
-        x = self.model_pose.position.x
-        y = self.model_pose.position.y
-        z = self.model_pose.position.z
-        qx = self.model_pose.orientation.x
-        qy = self.model_pose.orientation.y
-        qz = self.model_pose.orientation.z
-        qw = self.model_pose.orientation.w
-        # rospy.loginfo("{} : ({}, {})".format(self.model_name, x, y))
-        self.tf_broadcaster.sendTransform((x, y, z), (qx, qy, qz, qw), rospy.Time.now(), self.base_frame_id, self.global_frame_id)
-        # rospy.loginfo("{} tf publish".format(self.model_name))
+    def boroadcast_tf(self, _model_pose):
+        x = _model_pose.position.x
+        y = _model_pose.position.y
+        z = _model_pose.position.z
+        qx = _model_pose.orientation.x
+        qy = _model_pose.orientation.y
+        qz = _model_pose.orientation.z
+        qw = _model_pose.orientation.w
+        # rospy.loginfo("{} : ({}, {})".format(self.model_name_, x, y))
+        self.tf_broadcaster.sendTransform((x, y, z), (qx, qy, qz, qw), rospy.Time.now(), self.base_frame_id_, self.global_frame_id_)
+        # rospy.loginfo("{} tf publish".format(self.model_name_))
 
 def main():
     rospy.init_node("gazebo_tf_publisher")
+    
     tf_pub = Tf_publisher()
-    rate = rospy.Rate(50)
 
-    while tf_pub.model_pose is None:
-        try:
-            rate.sleep()
-        except rospy.ROSInterruptException:
-            pass
-
-    while not rospy.is_shutdown():
-        try:
-            tf_pub.boroadcast_tf()
-            rate.sleep()
-        except rospy.ROSInterruptException:
-            pass
-
+    rospy.spin()
 
 if __name__ == '__main__':
     main()
